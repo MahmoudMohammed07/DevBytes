@@ -1,6 +1,9 @@
 package com.example.android.devbyteviewer.viewmodels
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import androidx.lifecycle.*
 import com.example.android.devbyteviewer.database.getDatabase
 import com.example.android.devbyteviewer.domain.Video
@@ -45,8 +48,14 @@ class DevByteViewModel(application: Application) : AndroidViewModel(application)
     private val videoRepository = VideosRepository(database)
 
     init {
-        viewModelScope.launch {
-            videoRepository.refreshVideos()
+        val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnected == true
+
+        if (isConnected) {
+            viewModelScope.launch {
+                videoRepository.refreshVideos()
+            }
         }
     }
 
